@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% load static %}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-商品详情</title>
+	<link rel="stylesheet" type="text/css" href="/static/stage/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="/static/stage/css/main.css">
+
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div class="fr">
+				<div class="login_info fl">
+					欢迎您：<em>张 山</em>
+				</div>
+				<div class="login_btn fl">
+                    {% if user.id%}
+					<span style="color: #c09853">欢迎你，{{user.username}}</span>
+                    {% else %}
+                    <a href="{% url 'users:login' %}">登录</a>
+                    {% endif %}
+					<span>|</span>
+                    {% if user.id%}
+					<a href="{% url 'users:logout' %}">退出</a>
+                    {% else %}
+                    <a href="{% url 'users:register' %}">注册</a>
+                    {% endif %}
+				</div>
+				<div class="user_link fl">
+					<span>|</span>
+					<a href="{% url 'contents:userCenterInfo' %}">用户中心</a>
+					<span>|</span>
+					<a href="{% url 'contents:cart' %}">我的购物车</a>
+					<span>|</span>
+					<a href="{% url 'contents:userCenterOrder' %}">我的订单</a>
+				</div>
+			</div>
+		</div>		
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="{% url 'contents:index' %}" class="logo fl"><img src="/static/stage/images/logo.png"></a>
+		<div class="search_con fl">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+			<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>
+		<div class="guest_cart fr">
+			<a href="{% url 'contents:cart' %}" class="cart_name fl">我的购物车</a>
+			<div class="goods_count fl" id="show_count">1</div>
+		</div>
+	</div>
+
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>	
+				<span></span>			
+				<ul class="subnav">
+					{% for gt in gts %}
+					<li><a href="{% url 'contents:list' gt.gt_id %}" class="{{gt.clas}}">{{gt.gt_name}}</a></li>
+                    {% endfor %}
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="">手机生鲜</a></li>
+				<li class="interval">|</li>
+				<li><a href="">抽奖</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="{% url 'contents:list' 1000 %}">全部分类</a>
+		<span>></span>
+
+		<a href="{% url 'contents:list' good.gt.gt_id %}">{{good.gt.gt_name}}</a>
+		<span>></span>
+		<a href="">{{good.name}}</a>
+	</div>
+
+	<div class="goods_detail_con clearfix">
+		<div class="goods_detail_pic fl"><img src="{% static good.img %}"></div>
+
+		<div class="goods_detail_list fr">
+			<h3>{{good.name}}</h3>
+			<p>草莓浆果柔软多汁，味美爽口，适合速冻保鲜贮藏。草莓速冻后，可以保持原有的色、香、味，既便于贮藏，又便于外销。</p>
+			<div class="prize_bar">
+				<span class="show_pirze">¥<em>{{good.price}}</em></span>
+				<span class="show_unit">单  位：500g</span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+				<div class="num_add fl">
+					<input type="text" class="num_show fl" value="1">
+					<a href="javascript:;" class="add fr">+</a>
+					<a href="javascript:;" class="minus fr">-</a>	
+				</div> 
+			</div>
+			<div class="total">总价：<em>16.80元</em></div>
+			<div class="operate_btn">
+				<a href="javascript:;" class="buy_btn">立即购买</a>
+				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>				
+			</div>
+		</div>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+                    {% for rgood in rgoods %}
+					<li>
+						<a href="{% url 'contents:detail' rgood.gt.gt_id rgood.g_id %}"><img src="{% static rgood.img %}"></a>
+						<h4><a href="{% url 'contents:detail' rgood.gt.gt_id rgood.g_id %}">{{rgood.name}}</a></h4>
+						<div class="prize">￥{{rgood.price}}</div>
+					</li>
+                    {% endfor %}
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<ul class="detail_tab clearfix">
+				<li class="active">商品介绍</li>
+				<li>评论</li>
+			</ul>
+
+			<div class="tab_content">
+				<dl>
+					<dt>商品详情：</dt>
+					<dd>草莓采摘园位于北京大兴区 庞各庄镇四各庄村 ，每年1月-6月面向北京以及周围城市提供新鲜草莓采摘和精品礼盒装草莓，草莓品种多样丰富，个大香甜。所有草莓均严格按照有机标准培育，不使用任何化肥和农药。草莓在采摘期间免洗可以直接食用。欢迎喜欢草莓的市民前来采摘，也欢迎各大单位选购精品有机草莓礼盒，有机草莓礼盒是亲朋馈赠、福利送礼的最佳选择。 </dd>
+				</dl>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a>
+			<span>|</span>
+			<a href="#">联系我们</a>
+			<span>|</span>
+			<a href="#">招聘人才</a>
+			<span>|</span>
+			<a href="#">友情链接</a>		
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888    京ICP备*******8号</p>
+	</div>
+	<div class="add_jump"></div>
+
+	<script type="text/javascript" src="js/jquery-1.12.2.js"></script>
+	<script type="text/javascript">
+		var $add_x = $('#add_cart').offset().top;
+		var $add_y = $('#add_cart').offset().left;
+
+		var $to_x = $('#show_count').offset().top;
+		var $to_y = $('#show_count').offset().left;
+
+		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+		$('#add_cart').click(function(){
+			$(".add_jump").stop().animate({
+				'left': $to_y+7,
+				'top': $to_x+7},
+				"fast", function() {
+					$(".add_jump").fadeOut('fast',function(){
+						$('#show_count').html(2);
+					});
+
+			});
+		})
+	</script>
+	
+</body>
+</html>
