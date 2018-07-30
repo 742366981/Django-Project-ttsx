@@ -26,35 +26,48 @@ def cart(request):
 
 def detail(request, tid, gid):
     if request.method == 'GET':
-        gts=GoodsType.objects.all()
+        gts = GoodsType.objects.all()
         # 随机选取2个推荐商品
         rgoods = Goods.objects.all()
         i = randrange(len(rgoods))
         rgoods = rgoods[i:i + 2]
-        gt=GoodsType.objects.get(gt_id=tid)
-        good = Goods.objects.filter(g_id=gid,gt=gt).first()
-        return render(request, 'contents/detail.html', {'good': good, 'tid': tid,'gid':gid,'gts':gts,'rgoods':rgoods})
+        gt = GoodsType.objects.get(gt_id=tid)
+        good = Goods.objects.filter(g_id=gid, gt=gt).first()
+        return render(request, 'contents/detail.html',
+                      {'good': good, 'tid': tid, 'gid': gid, 'gts': gts, 'rgoods': rgoods})
 
 
 def listre(request):
     if request.method == 'GET':
-        return HttpResponseRedirect(reverse('contents:list', kwargs={'tid': '1000'}))
+        return HttpResponseRedirect(reverse('contents:list', kwargs={'tid': '1000', 'sid': 0}))
 
 
-def list(request, tid):
+def list(request, tid, sid):
     if request.method == 'GET':
         # 随机选取2个推荐商品
-        rgoods=Goods.objects.all()
-        i=randrange(len(rgoods))
-        rgoods=rgoods[i:i+2]
+        rgoods = Goods.objects.all()
+        i = randrange(len(rgoods))
+        rgoods = rgoods[i:i + 2]
         gts = GoodsType.objects.all()
         if tid == '1000':
-            goods = Goods.objects.all()
+            if sid == '0':
+                goods = Goods.objects.all().order_by('name')
+            if sid == '1':
+                goods = Goods.objects.all().order_by('price')
+            if sid == '2':
+                goods = Goods.objects.all().order_by('-price')
         else:
-            gtss=GoodsType.objects.get(gt_id=tid)
+            gtss = GoodsType.objects.get(gt_id=tid)
             goods = Goods.objects.filter(gt=gtss)
+            if sid == '0':
+                goods = goods.order_by('name')
+            if sid == '1':
+                goods = goods.order_by('price')
+            if sid == '2':
+                goods = goods.order_by('-price')
 
-        return render(request, 'contents/list.html', {'tid': tid, 'gts': gts, 'goods': goods,'rgoods':rgoods})
+        return render(request, 'contents/list.html',
+                      {'tid': tid, 'gts': gts, 'goods': goods, 'rgoods': rgoods, 'sid': sid})
 
 
 def place_order(request):
