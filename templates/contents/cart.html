@@ -1,4 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% load static %}
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
@@ -7,6 +8,7 @@
 	<link rel="stylesheet" type="text/css" href="/static/stage/css/main.css">
 </head>
 <body>
+    {% csrf_token %}
 	<div class="header_con">
 		<div class="header">
 			<div class="welcome fl">欢迎来到天天生鲜!</div>
@@ -57,45 +59,34 @@
 		<li class="col05">小计</li>
 		<li class="col06">操作</li>
 	</ul>
-	<ul class="cart_list_td clearfix">
+    {% for cart in carts%}
+
+	<ul id="cart{{cart.goods.id}}" class="cart_list_td clearfix">
 		<li class="col01"><input type="checkbox" name="" checked></li>
-		<li class="col02"><img src="images/goods/goods012.jpg"></li>
-		<li class="col03">奇异果<br><em>25.80元/500g</em></li>
+		<li class="col02"><img src="{% static cart.goods.img %}"></li>
+		<li class="col03">{{cart.goods.name}}<br><em>{{cart.goods.price}}/500g</em></li>
 		<li class="col04">500g</li>
-		<li class="col05">25.80元</li>
+		<li class="col05">{{cart.goods.price}}</li>
 		<li class="col06">
 			<div class="num_add">
-				<a href="javascript:;" class="add fl">+</a>
-				<input type="text" class="num_show fl" value="1">	
-				<a href="javascript:;" class="minus fl">-</a>	
+				<a onclick="addCart({{cart.goods.id}})" class="add fl">+</a>
+				<input type="text" class="num_show fl num{{cart.goods.id}}" value="{{cart.c_num}}">
+				<a onclick="reduceCart({{cart.goods.id}})" class="minus fl">-</a>
 			</div>
 		</li>
-		<li class="col07">25.80元</li>
+		<li class="col07">{%  widthratio cart.goods.price 1 cart.c_num %}</li>
 		<li class="col08"><a href="javascript:;">删除</a></li>
 	</ul>
 
-	<ul class="cart_list_td clearfix">
-		<li class="col01"><input type="checkbox" name="" checked></li>
-		<li class="col02"><img src="images/goods/goods003.jpg"></li>
-		<li class="col03">大兴大棚草莓<br><em>16.80元/500g</em></li>
-		<li class="col04">500g</li>
-		<li class="col05">16.80元</li>
-		<li class="col06">
-			<div class="num_add">
-				<a href="javascript:;" class="add fl">+</a>
-				<input type="text" class="num_show fl" value="1">	
-				<a href="javascript:;" class="minus fl">-</a>	
-			</div>
-		</li>
-		<li class="col07">16.80元</li>
-		<li class="col08"><a href="javascript:;">删除</a></li>
-	</ul>
+    {% endfor %}
+
+
 	
 
 	<ul class="settlements">
 		<li class="col01"><input type="checkbox" name="" checked=""></li>
 		<li class="col02">全选</li>
-		<li class="col03">合计(不含运费)：<span>¥</span><em>42.60</em><br>共计<b>2</b>件商品</li>
+		<li class="col03">合计(不含运费)：<span>¥</span><em id="price"></em><br>共计<b id="count">2</b>件商品</li>
 		<li class="col04"><a href="place_order.html">去结算</a></li>
 	</ul>
 
@@ -112,6 +103,52 @@
 		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
 		<p>电话：010-****888    京ICP备*******8号</p>
 	</div>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+	<script>
+		function addCart(id) {
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+            $.ajax({
+                type:'POST',
+                url:'/contents/addCart/',
+                headers:{'X-CSRFToken': csrf},
+                dataType:'json',
+                data:{'g_id':id},
+                success:function (data) {
+                    if (data.code == '200') {
+                        $('.num' + id).val(data.c_num);
+                        getPrice();
+                    }
+                }
+            });
+        }
+
+        function reduceCart(id) {
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+            $.ajax({
+                type:'POST',
+                url:'/contents/reduceCart/',
+                headers:{'X-CSRFToken': csrf},
+                dataType:'json',
+                data:{'g_id':id},
+                success:function (data) {
+                    if (data.code == '200') {
+                        $('.num' + id).val(data.c_num);
+                        getPrice();
+                    }
+                    if(data.c_num==0){
+                            $('#cart'+id).remove();
+                    }
+                }
+            });
+        }
+        function getPrice() {
+            $.get('/contents/getPrice/',function (data) {
+                 $('#price').text(data.prices);
+                 $('#count').text(data.counts);
+            });
+        }
+        getPrice();
+	</script>
 	
 </body>
 </html>

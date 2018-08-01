@@ -1,10 +1,10 @@
 from random import randrange
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 
-from contents.models import MainWheel, MainAdv, Goods, GoodsType
+from contents.models import MainWheel, MainAdv, Goods, GoodsType, Cart
 
 
 def index(request):
@@ -21,7 +21,10 @@ def index(request):
 
 def cart(request):
     if request.method == 'GET':
-        return render(request, 'contents/cart.html')
+        user = request.user
+        if user.id:
+            carts = Cart.objects.filter(user=user)
+        return render(request, 'contents/cart.html', {'carts': carts})
 
 
 def detail(request, tid, gid):
@@ -88,3 +91,60 @@ def user_center_order(request):
 def user_center_site(request):
     if request.method == 'GET':
         return render(request, 'contents/user_center_site.html')
+
+
+def add_cart(request):
+    if request.method == 'POST':
+        user = request.user
+        data = {}
+        data['code'] = 1001
+        if user.id:
+            g_id = request.POST.get('g_id')
+            cart = Cart.objects.filter(user=user, goods_id=g_id).first()
+            if cart:
+                cart.c_num += 1
+                cart.save()
+                data['c_num'] = cart.c_num
+            else:
+                Cart.objects.create(user=user, goods_id=g_id)
+                data['c_num'] = 1
+            data['code'] = 200
+            data['msg'] = '请求成功'
+            return JsonResponse(data)
+        return JsonResponse(data)
+
+
+def reduce_cart(request):
+    if request.method == 'POST':
+        user = request.user
+        data = {}
+        if user.id:
+            g_id = request.POST.get('g_id')
+            cart = Cart.objects.filter(user=user, goods_id=g_id).first()
+            if not cart:
+                pass
+            else:
+                if cart.c_num == 1:
+                    cart.delete()
+                    data['c_num'] = 0
+                    data['code'] = 200
+                else:
+                    cart.c_num -= 1
+                    cart.save()
+                    data['c_num'] = cart.c_num
+                    data['code'] = 200
+            return JsonResponse(data)
+
+
+def get_price(request):
+    if request.method == 'GET':
+        user = request.user
+        if user.id:
+            carts = Cart.objects.filter(user=user)
+            prices=0
+            counts=0
+            for cart in carts:
+                prices+=cart.goods.price*cart.c_num
+                counts+=cart.c_num
+            prices='%.2f'%prices
+            return JsonResponse({'prices':prices,'counts':counts})

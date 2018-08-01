@@ -5,6 +5,9 @@ from contents import views
 urlpatterns = [
     url(r'^index/', views.index, name='index'),
     url(r'^cart/', views.cart, name='cart'),
+    url(r'^addCart/', views.add_cart),
+    url(r'^reduceCart/', views.reduce_cart),
+    url(r'^getPrice/', views.get_price),
     url(r'^detail/(?P<tid>\d+)/(?P<gid>\d+)/', views.detail, name='detail'),
     url(r'^listre/',views.listre),
     url(r'^list/(?P<tid>\d+)/(?P<sid>\d+)/', views.list, name='list'),

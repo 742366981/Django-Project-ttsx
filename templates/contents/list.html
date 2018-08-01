@@ -51,7 +51,7 @@
 			<div class="goods_count fl">1</div>
 		</div>
 	</div>
-
+    {% csrf_token %}
 	<div class="navbar_con">
 		<div class="navbar clearfix">
 			<div class="subnav_con fl">
@@ -115,7 +115,7 @@
 					<div class="operate">
 						<span class="prize">￥{{good.price}}</span>
 						<span class="unit">{{good.price}}/500g</span>
-						<a href="#" class="add_goods" title="加入购物车"></a>
+						<a onclick="addCart({{good.id}})" class="add_goods" title="加入购物车"></a>
 					</div>
 				</li>
 				{% endfor %}
@@ -147,6 +147,22 @@
 		<p>电话：010-****888    京ICP备*******8号</p>
 	</div>
     <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+	<script>
+		function addCart(id) {
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+            $.ajax({
+                type:'POST', 
+                url:'/contents/addCart/',
+                headers:{'X-CSRFToken': csrf},
+                dataType:'json',
+                data:{'g_id':id},
+                success:function (data) {
+
+                }
+                
+            });
+        }
+	</script>
 
 	
 </body>
