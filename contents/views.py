@@ -144,7 +144,45 @@ def get_price(request):
             prices=0
             counts=0
             for cart in carts:
-                prices+=cart.goods.price*cart.c_num
-                counts+=cart.c_num
+                if cart.is_select:
+                    prices+=cart.goods.price*cart.c_num
+                    counts+=cart.c_num
             prices='%.2f'%prices
             return JsonResponse({'prices':prices,'counts':counts})
+
+
+def change_status(request):
+    if request.method=='POST':
+        user=request.user
+        data={}
+        if user.id:
+            g_id=request.POST.get('g_id')
+            cart=Cart.objects.filter(user=user,goods_id=g_id).first()
+            if cart.is_select:
+                cart.is_select=False
+                cart.save()
+            else:
+                cart.is_select=True
+                cart.save()
+            return JsonResponse({'code':200,'is_select':cart.is_select})
+
+
+def all_status(request):
+    if request.method=='POST':
+        user=request.user
+        if user.id:
+            carts=Cart.objects.all()
+            for cart in carts:
+                cart.is_select=True
+                cart.save()
+            return JsonResponse({'code':200})
+
+
+def good_delete(request):
+    if request.method=='POST':
+        user=request.user
+        if user.id:
+            g_id=request.POST.get('g_id')
+            cart=Cart.objects.filter(user=user,goods_id=g_id).first()
+            cart.delete()
+            return JsonResponse({'code':200})
