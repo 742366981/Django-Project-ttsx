@@ -172,8 +172,8 @@
                 success:function (data) {
                     if (data.code == '200') {
                         $('.va').val(data.c_num);
-                        $('#show_count').text(data.c_num);
                         getAPrice();
+                        getCartCount();
                     }
                 }
             });
@@ -189,13 +189,12 @@
                 success:function (data) {
                     if (data.code == '200') {
                         $('.va').val(data.c_num);
-                        $('#show_count').text(data.c_num);
                         getAPrice();
                     }
                     if(data.c_num==0){
                             $('.va').val(0);
-                            $('#show_count').text(data.c_num);
-                    }
+                            $('#total').text('00.00元');
+                    }getCartCount();
                 }
             });
         }
@@ -212,13 +211,18 @@
                     if(data.code=='200'){
                         $('#total').text(data.price+'元');
                     }else {
-                        $('#show_count').text(0)
                         $('.va').val(0)
-                    }
+                    }getCartCount();
                 }
             });
         }
         getAPrice();
+		function getCartCount() {
+            $.get('/contents/getPrice/',function (data) {
+                 $('#show_count').text(data.counts);
+            });
+        }
+        getCartCount();
 	</script>
 	
 </body>
