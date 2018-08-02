@@ -9,7 +9,8 @@
 
 </head>
 <body>
-	<div class="header_con">
+    {% csrf_token %}
+	<div id="x{{good.id}}" class="header_con">
 		<div class="header">
 			<div class="welcome fl">欢迎来到天天生鲜!</div>
 			<div class="fr">
@@ -49,7 +50,7 @@
 		</div>
 		<div class="guest_cart fr">
 			<a href="{% url 'contents:cart' %}" class="cart_name fl">我的购物车</a>
-			<div class="goods_count fl" id="show_count">1</div>
+			<div class="goods_count fl" id="show_count">{{good.cart_set.all.0.c_num}}</div>
 		</div>
 	</div>
 
@@ -60,7 +61,7 @@
 				<span></span>			
 				<ul class="subnav">
 					{% for gt in gts %}
-					<li><a href="{% url 'contents:list' gt.gt_id %}" class="{{gt.clas}}">{{gt.gt_name}}</a></li>
+					<li><a href="{% url 'contents:list' gt.gt_id 0 %}" class="{{gt.clas}}">{{gt.gt_name}}</a></li>
                     {% endfor %}
 				</ul>
 			</div>
@@ -75,10 +76,10 @@
 	</div>
 
 	<div class="breadcrumb">
-		<a href="{% url 'contents:list' 1000 %}">全部分类</a>
+		<a href="{% url 'contents:list' 1000 0 %}">全部分类</a>
 		<span>></span>
 
-		<a href="{% url 'contents:list' good.gt.gt_id %}">{{good.gt.gt_name}}</a>
+		<a href="{% url 'contents:list' good.gt.gt_id 0 %}">{{good.gt.gt_name}}</a>
 		<span>></span>
 		<a href="">{{good.name}}</a>
 	</div>
@@ -96,15 +97,15 @@
 			<div class="goods_num clearfix">
 				<div class="num_name fl">数 量：</div>
 				<div class="num_add fl">
-					<input type="text" class="num_show fl" value="1">
-					<a href="javascript:;" class="add fr">+</a>
-					<a href="javascript:;" class="minus fr">-</a>	
+					<input type="text" readonly class="num_show fl va" value="{{good.cart_set.all.0.c_num}}">
+					<a href="javascript:;" onclick="addCart({{good.id}})" class="add fr">+</a>
+					<a href="javascript:;" onclick="reduceCart({{good.id}})" class="minus fr">-</a>
 				</div> 
 			</div>
-			<div class="total">总价：<em>16.80元</em></div>
+			<div class="total">总价：<em id="total">00.00元</em></div>
 			<div class="operate_btn">
 				<a href="javascript:;" class="buy_btn">立即购买</a>
-				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>				
+				<a href="javascript:;" class="add_cart" onclick="addCart({{good.id}})" id="add_cart">加入购物车</a>
 			</div>
 		</div>
 	</div>
@@ -156,26 +157,68 @@
 	</div>
 	<div class="add_jump"></div>
 
-	<script type="text/javascript" src="js/jquery-1.12.2.js"></script>
+
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
 	<script type="text/javascript">
-		var $add_x = $('#add_cart').offset().top;
-		var $add_y = $('#add_cart').offset().left;
 
-		var $to_x = $('#show_count').offset().top;
-		var $to_y = $('#show_count').offset().left;
-
-		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
-		$('#add_cart').click(function(){
-			$(".add_jump").stop().animate({
-				'left': $to_y+7,
-				'top': $to_x+7},
-				"fast", function() {
-					$(".add_jump").fadeOut('fast',function(){
-						$('#show_count').html(2);
-					});
-
-			});
-		})
+		function addCart(id) {
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+            $.ajax({
+                type:'POST',
+                url:'/contents/addCart/',
+                headers:{'X-CSRFToken': csrf},
+                dataType:'json',
+                data:{'g_id':id},
+                success:function (data) {
+                    if (data.code == '200') {
+                        $('.va').val(data.c_num);
+                        $('#show_count').text(data.c_num);
+                        getAPrice();
+                    }
+                }
+            });
+        }
+        function reduceCart(id) {
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+            $.ajax({
+                type:'POST',
+                url:'/contents/reduceCart/',
+                headers:{'X-CSRFToken': csrf},
+                dataType:'json',
+                data:{'g_id':id},
+                success:function (data) {
+                    if (data.code == '200') {
+                        $('.va').val(data.c_num);
+                        $('#show_count').text(data.c_num);
+                        getAPrice();
+                    }
+                    if(data.c_num==0){
+                            $('.va').val(0);
+                            $('#show_count').text(data.c_num);
+                    }
+                }
+            });
+        }
+        function getAPrice() {
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+            var id=$('.header_con').attr('id').substring(1)
+            $.ajax({
+                type:'POST',
+                url:'/contents/getAPrice/',
+                headers:{'X-CSRFToken': csrf},
+                data:{'g_id':id},
+                dataType:'json',
+                success:function (data) {
+                    if(data.code=='200'){
+                        $('#total').text(data.price+'元');
+                    }else {
+                        $('#show_count').text(0)
+                        $('.va').val(0)
+                    }
+                }
+            });
+        }
+        getAPrice();
 	</script>
 	
 </body>

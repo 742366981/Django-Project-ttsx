@@ -186,3 +186,23 @@ def good_delete(request):
             cart=Cart.objects.filter(user=user,goods_id=g_id).first()
             cart.delete()
             return JsonResponse({'code':200})
+
+
+
+def get_a_price(request):
+    if request.method=='POST':
+        user=request.user
+        data={}
+        if user.id:
+            g_id=request.POST.get('g_id')
+            cart=Cart.objects.filter(user=user,goods_id=g_id).first()
+            if cart:
+                price=cart.c_num*cart.goods.price
+                price='%.2f'%price
+                data['code']=200
+                data['price']=price
+            else:
+                data['code']=100
+
+            return JsonResponse(data)
+

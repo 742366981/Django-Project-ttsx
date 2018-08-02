@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^reduceCart/', views.reduce_cart),
     # 获得购物车商品信息
     url(r'^getPrice/', views.get_price),
+    # 获得详情页商品价格
+    url(r'^getAPrice/', views.get_a_price),
     # 改变购物车商品状态
     url(r'^changeStatus/', views.change_status),
     # 全选
