@@ -1,4 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% load static %}
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
@@ -7,6 +8,7 @@
 	<link rel="stylesheet" type="text/css" href="/static/stage/css/main.css">
 </head>
 <body>
+    {% csrf_token %}
 	<div class="header_con">
 		<div class="header">
 			<div class="welcome fl">欢迎来到天天生鲜!</div>
@@ -50,7 +52,12 @@
 	<div class="common_list_con clearfix">
 		<dl>
 			<dt>寄送到：</dt>
-			<dd><input type="radio" name="" checked="">北京市 海淀区 东北旺西路8号中关村软件园 （李思 收） 182****7528</dd>
+			{% for address in address %}
+			<dd><input id="address{{address.id}}" onclick="changeAddressStatus({{address.id}})" type="radio"
+                       {% if address.is_select %} checked {% endif %} name="address">
+                {{address.detail_address }} ( {{address.recipient}} 收) {{address.tel}}
+            </dd>
+			{% endfor %}
 		</dl>
 		<a href="{% url 'contents:userCenterSite' %}" class="edit_site">编辑收货地址</a>
 
@@ -80,24 +87,17 @@
 			<li class="col04">数量</li>
 			<li class="col05">小计</li>		
 		</ul>
+        {% for cart in carts %}
 		<ul class="goods_list_td clearfix">
-			<li class="col01">1</li>			
-			<li class="col02"><img src="images/goods/goods012.jpg"></li>
-			<li class="col03">奇异果</li>
+			<li class="col01">{{cart.goods.g_id}}</li>
+			<li class="col02"><img src="{% static cart.goods.img %}"></li>
+			<li class="col03">{{cart.goods.name}}</li>
 			<li class="col04">500g</li>
-			<li class="col05">25.80元</li>
-			<li class="col06">1</li>
-			<li class="col07">25.80元</li>	
+			<li class="col05">{{cart.goods.price}}元</li>
+			<li class="col06">{{cart.c_num}}</li>
+			<li class="col07">{%  widthratio cart.goods.price 1 cart.c_num %}元</li>
 		</ul>
-		<ul class="goods_list_td clearfix">
-			<li class="col01">2</li>			
-			<li class="col02"><img src="images/goods/goods003.jpg"></li>
-			<li class="col03">大兴大棚草莓</li>
-			<li class="col04">500g</li>
-			<li class="col05">16.80元</li>
-			<li class="col06">1</li>
-			<li class="col07">16.80元</li>	
-		</ul>
+        {% endfor %}
 	</div>
 
 	<h3 class="common_title">总金额结算</h3>
@@ -105,7 +105,7 @@
 	<div class="common_list_con clearfix">
 		<div class="settle_con">
 			<div class="total_goods_count">共<em>2</em>件商品，总金额<b>42.60元</b></div>
-			<div class="transit">运费：<b>10元</b></div>
+			<div class="transit">运费：<b>0元</b></div>
 			<div class="total_pay">实付款：<b>52.60元</b></div>
 		</div>
 	</div>
@@ -135,7 +135,9 @@
 		
 		<div class="mask"></div>
 	</div>
-	<script type="text/javascript" src="js/jquery-1.12.2.js"></script>
+
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/static/stage/js/place_order.js"></script>
 	<script type="text/javascript">
 		$('#order_btn').click(function() {
 			localStorage.setItem('order_finish',2);

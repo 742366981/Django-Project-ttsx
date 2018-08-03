@@ -5,6 +5,8 @@
 	<title>天天生鲜-用户中心</title>
 	<link rel="stylesheet" type="text/css" href="/static/stage/css/reset.css">
 	<link rel="stylesheet" type="text/css" href="/static/stage/css/main.css">
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/static/stage/js/user_center_site.js"></script>
 </head>
 <body>
 	<div class="header_con">
@@ -62,10 +64,16 @@
 				<div class="site_con">
 					<dl>
 						<dt>当前地址：</dt>
-						<dd>北京市 海淀区 东北旺西路8号中关村软件园 （李思 收） 182****7528</dd>
+						<dd> {{address.detail_address }} ( {{address.recipient}} 收) {{address.tel}}</dd>
+                        <dt>其他地址：</dt>
+                        {% for address in other_address %}
+                        <dd>{{address.detail_address }} ( {{address.recipient}} 收) {{address.tel}}
+                            <a id="remove{{address.id}}" onclick="removeAddress({{address.id}})" href="javascript:;" style="position: absolute;left: 1200px">删除</a>
+                        </dd>
+                        {% endfor %}
 					</dl>					
 				</div>
-				<h3 class="common_title2">编辑地址</h3>
+				<h3 class="common_title2">添加地址</h3>
 				<div class="site_con">
 					<form method="post" action="">
 						{% csrf_token %}
@@ -86,7 +94,7 @@
 							<input type="text" name="tel">
 						</div>
 
-						<input type="submit" name="" value="提交" class="info_submit">
+						<input type="submit" name="" value="新增地址" class="info_submit">
 					</form>
 				</div>
 		</div>

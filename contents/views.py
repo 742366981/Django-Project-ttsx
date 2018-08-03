@@ -81,7 +81,11 @@ def list(request, tid, sid):
 # 支付
 def place_order(request):
     if request.method == 'GET':
-        return render(request, 'contents/place_order.html')
+        user = request.user
+        if user.id:
+            address = Address.objects.filter(user=user)
+            carts=Cart.objects.filter(user=user,is_select=True)
+            return render(request, 'contents/place_order.html', {'address': address,'carts':carts})
 
 
 # 个人信息
@@ -99,15 +103,21 @@ def user_center_order(request):
 # 收货地址
 def user_center_site(request):
     if request.method == 'GET':
-        return render(request, 'contents/user_center_site.html')
+        user = request.user
+        if user.id:
+            address = Address.objects.filter(user=user,is_select=True).first()
+            other_address=Address.objects.filter(user=user,is_select=False)
+            return render(request, 'contents/user_center_site.html', {'address': address,'other_address':other_address})
     if request.method == 'POST':
         user = request.user
-        recipient = request.POST.get('recipient')
-        detail_address = request.POST.get('detail_address')
-        post_code = request.POST.get('post_code')
-        tel = request.POST.get('tel')
-        Address.objects.create(recipient=recipient, detail_address=detail_address, post_code=post_code,
-                               tel=tel, user=user)
+        if user.id:
+            recipient = request.POST.get('recipient')
+            detail_address = request.POST.get('detail_address')
+            post_code = request.POST.get('post_code')
+            tel = request.POST.get('tel')
+            Address.objects.create(recipient=recipient, detail_address=detail_address, post_code=post_code,
+                                   tel=tel, user=user)
+            return HttpResponseRedirect(reverse('contents:placeOrder'))
 
 
 # 添加商品
@@ -226,4 +236,51 @@ def get_a_price(request):
             else:
                 data['code'] = 100
 
+            return JsonResponse(data)
+
+
+# 改变地址状态
+def change_address_status(request):
+    if request.method == "POST":
+        user = request.user
+        if user.id:
+            id = request.POST.get('id')
+            all_addresss = Address.objects.all()
+            addresss = Address.objects.filter(user=user, id=id).first()
+            if addresss:
+                for addr in all_addresss:
+                    addr.is_select = False
+                    addr.save()
+                addresss.is_select = True
+                addresss.save()
+
+                return JsonResponse({'code': 200})
+
+
+# 删除地址
+def remove_address(request):
+    if request.method == 'POST':
+        user = request.user
+        if user.id:
+            id = request.POST.get('id')
+            address = Address.objects.filter(user=user, id=id).first()
+            address.delete()
+            return JsonResponse({'code': 200})
+
+
+# 立即购买
+def buy_now(request):
+    if request.method=='POST':
+        user=request.user
+        data={}
+        if user.id:
+            g_id=request.POST.get('g_id')
+            cart=Cart.objects.filter(user=user,goods_id=g_id).first()
+            if cart:
+                cart.c_num+=1
+                cart.save()
+                data['code']=200
+            else:
+                Cart.objects.create(user=user,goods_id=g_id)
+                data['code'] = 200
             return JsonResponse(data)

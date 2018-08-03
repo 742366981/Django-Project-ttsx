@@ -104,7 +104,7 @@
 			</div>
 			<div class="total">总价：<em id="total">00.00元</em></div>
 			<div class="operate_btn">
-				<a href="javascript:;" class="buy_btn">立即购买</a>
+				<a href="javascript:;" onclick="buyNow({{good.id}})" class="buy_btn">立即购买</a>
 				<a href="javascript:;" class="add_cart" onclick="addCart({{good.id}})" id="add_cart">加入购物车</a>
 			</div>
 		</div>
@@ -223,6 +223,22 @@
             });
         }
         getCartCount();
+		function buyNow(id) {
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+            $.ajax({
+                type:'POST',
+                url:'/contents/buyNow/',
+                data:{'g_id':id},
+                dataType:'json',
+                headers:{'X-CSRFToken':csrf},
+                success:function (data) {
+                    if(data.code=='200'){
+                        location.href='/contents/placeOrder/';
+                    }
+                }
+                
+            });
+        }
 	</script>
 	
 </body>

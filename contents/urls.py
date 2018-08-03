@@ -23,12 +23,18 @@ urlpatterns = [
     url(r'^goodDelete/', views.good_delete),
     # 商品详情
     url(r'^detail/(?P<tid>\d+)/(?P<gid>\d+)/', views.detail, name='detail'),
+    # 立即购买
+    url(r'buyNow/',views.buy_now),
     # 跳转全部商品列表页
     url(r'^listre/',views.listre),
     # 分类商品列表
     url(r'^list/(?P<tid>\d+)/(?P<sid>\d+)/', views.list, name='list'),
     # 支付
     url(r'^placeOrder/', views.place_order, name='placeOrder'),
+    # 改变地址状态
+    url(r'^changeAddressStatus/', views.change_address_status),
+    # 删除地址
+    url(r'^removeAddress/', views.remove_address),
     # 个人信息
     url(r'^userCenterInfo/', views.user_center_info, name='userCenterInfo'),
     # 全部订单

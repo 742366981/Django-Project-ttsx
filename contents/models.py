@@ -54,8 +54,9 @@ class Address(models.Model):
     recipient = models.CharField(max_length=20)
     detail_address = models.CharField(max_length=100)
     post_code = models.IntegerField(null=True)
-    tel = models.IntegerField()
+    tel = models.CharField(max_length=11)
     user = models.ForeignKey(User)
+    is_select=models.BooleanField(default=False)
 
     class Meta:
         db_table = 'address'
