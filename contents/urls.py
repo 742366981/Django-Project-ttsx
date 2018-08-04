@@ -43,4 +43,6 @@ urlpatterns = [
     url(r'^userCenterSite/', views.user_center_site, name='userCenterSite'),
     # 提交订单
     url(r'^submitOrder/', views.submit_order),
+    # 点击查看订单价格
+    url(r'^oPrice/', views.o_price),
 ]

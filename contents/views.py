@@ -314,3 +314,14 @@ def submit_order(reuqest):
             OrderGoods.objects.create(order=order, goods=cart.goods, goods_num=cart.c_num)
         carts.delete()
         return JsonResponse({'code': 200})
+
+
+def o_price(request):
+    if request.method == 'GET':
+        o_id = request.GET.get('o_id')
+        ogs = OrderGoods.objects.filter(order_id=o_id)
+        prices = 0
+        for og in ogs:
+            prices += og.goods.price * og.goods_num
+        prices = '%.2f' % prices
+        return JsonResponse({'code': 200, 'prices': prices})

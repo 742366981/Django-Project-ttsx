@@ -6,6 +6,8 @@
 	<title>天天生鲜-用户中心</title>
 	<link rel="stylesheet" type="text/css" href="/static/stage/css/reset.css">
 	<link rel="stylesheet" type="text/css" href="/static/stage/css/main.css">
+    <script src="/static/stage/js/jquery.min.js"></script>
+    <script src="/static/stage/js/user_center_order.js"></script>
 </head>
 <body>
 	<div class="header_con">
@@ -83,7 +85,7 @@
 
 
 							</td>
-							<td width="15%">33.60元</td>
+							<td id="no{{order.id}}" width="15%" onclick="noPrice({{order.id}})">点击查看该订单价格</td>
 							<td width="15%">待付款</td>
 							<td width="15%"><a href="#" class="oper_btn">去付款</a></td>
 						</tr>
@@ -112,7 +114,7 @@
 
 
 							</td>
-							<td width="15%">33.60元</td>
+							<td id="yes{{order.id}}" onclick="yesPrice({{order.id}})" width="15%">点击查看该订单价格</td>
 							<td width="15%">已付款</td>
 							<td width="15%"><a href="#" class="oper_btn">查看物流</a></td>
 						</tr>
