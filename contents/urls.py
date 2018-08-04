@@ -41,4 +41,6 @@ urlpatterns = [
     url(r'^userCenterOrder/', views.user_center_order, name='userCenterOrder'),
     # 收货地址
     url(r'^userCenterSite/', views.user_center_site, name='userCenterSite'),
+    # 提交订单
+    url(r'^submitOrder/', views.submit_order),
 ]

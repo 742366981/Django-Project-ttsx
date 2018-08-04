@@ -3,6 +3,7 @@ from django.db import models
 from users.models import User
 
 
+# 轮播
 class MainWheel(models.Model):
     img = models.CharField(max_length=200)
     name = models.CharField(max_length=16)
@@ -11,6 +12,7 @@ class MainWheel(models.Model):
         db_table = 'main_wheel'
 
 
+# 轮播右侧图
 class MainAdv(models.Model):
     img = models.CharField(max_length=200)
     name = models.CharField(max_length=16)
@@ -19,6 +21,7 @@ class MainAdv(models.Model):
         db_table = 'main_adv'
 
 
+# 商品类型
 class GoodsType(models.Model):
     gt_id = models.CharField(max_length=16)
     gt_name = models.CharField(max_length=16)
@@ -29,6 +32,7 @@ class GoodsType(models.Model):
         db_table = 'goods_type'
 
 
+# 商品
 class Goods(models.Model):
     g_id = models.CharField(max_length=16)
     img = models.CharField(max_length=255)
@@ -40,6 +44,7 @@ class Goods(models.Model):
         db_table = 'goods'
 
 
+# 购物车
 class Cart(models.Model):
     user = models.ForeignKey(User)  # 关联用户
     goods = models.ForeignKey(Goods)  # 关联商品
@@ -50,6 +55,7 @@ class Cart(models.Model):
         db_table = 'cart'
 
 
+# 收货地址
 class Address(models.Model):
     recipient = models.CharField(max_length=20)
     detail_address = models.CharField(max_length=100)
@@ -62,6 +68,7 @@ class Address(models.Model):
         db_table = 'address'
 
 
+# 订单
 class Order(models.Model):
     user = models.ForeignKey(User)  # 关联用户
     o_num = models.CharField(max_length=64)  # 订单号
@@ -73,6 +80,7 @@ class Order(models.Model):
         db_table = 'order'
 
 
+# 提交订单后的商品
 class OrderGoods(models.Model):
     goods = models.ForeignKey(Goods)  # 关联的商品
     order = models.ForeignKey(Order)  # 关联的订单

@@ -4,10 +4,12 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 
-from contents.models import MainWheel, MainAdv, Goods, GoodsType, Cart, Address
-
+from contents.models import MainWheel, MainAdv, Goods, GoodsType, Cart, Address, Order, OrderGoods
 
 # 首页
+from utils.functions import get_order_num
+
+
 def index(request):
     if request.method == 'GET':
         gts = GoodsType.objects.all()
@@ -59,11 +61,11 @@ def list(request, tid, sid):
         gts = GoodsType.objects.all()
         if tid == '1000':
             if sid == '0':
-                goods = Goods.objects.all().order_by('name')
+                goods = Goods.objects.order_by('name')
             if sid == '1':
-                goods = Goods.objects.all().order_by('price')
+                goods = Goods.objects.order_by('price')
             if sid == '2':
-                goods = Goods.objects.all().order_by('-price')
+                goods = Goods.objects.order_by('-price')
         else:
             gtss = GoodsType.objects.get(gt_id=tid)
             goods = Goods.objects.filter(gt=gtss)
@@ -84,20 +86,34 @@ def place_order(request):
         user = request.user
         if user.id:
             address = Address.objects.filter(user=user)
-            carts=Cart.objects.filter(user=user,is_select=True)
-            return render(request, 'contents/place_order.html', {'address': address,'carts':carts})
+            carts = Cart.objects.filter(user=user, is_select=True)
+            return render(request, 'contents/place_order.html', {'address': address, 'carts': carts})
 
 
 # 个人信息
 def user_center_info(request):
     if request.method == 'GET':
-        return render(request, 'contents/user_center_info.html')
+        user = request.user
+        if user.id:
+            username = user.username
+            address = Address.objects.filter(user=user, is_select=True).first()
+            all_goods = Goods.objects.all()
+            recent_goods = all_goods[len(all_goods) - 5:len(all_goods)]
+            return render(request, 'contents/user_center_info.html', {'username': username, 'address': address,
+                                                                      'recent_goods': recent_goods})
 
 
 # 全部订单
 def user_center_order(request):
     if request.method == 'GET':
-        return render(request, 'contents/user_center_order.html')
+        user = request.user
+
+        no_pay_orders = Order.objects.filter(user=user, o_status=0)
+
+        yes_pay_orders = Order.objects.filter(user=user, o_status=1)
+
+        return render(request, 'contents/user_center_order.html', {'no_pay_orders': no_pay_orders,
+                                                                   'yes_pay_orders': yes_pay_orders})
 
 
 # 收货地址
@@ -105,9 +121,10 @@ def user_center_site(request):
     if request.method == 'GET':
         user = request.user
         if user.id:
-            address = Address.objects.filter(user=user,is_select=True).first()
-            other_address=Address.objects.filter(user=user,is_select=False)
-            return render(request, 'contents/user_center_site.html', {'address': address,'other_address':other_address})
+            address = Address.objects.filter(user=user, is_select=True).first()
+            other_address = Address.objects.filter(user=user, is_select=False)
+            return render(request, 'contents/user_center_site.html',
+                          {'address': address, 'other_address': other_address})
     if request.method == 'POST':
         user = request.user
         if user.id:
@@ -270,17 +287,30 @@ def remove_address(request):
 
 # 立即购买
 def buy_now(request):
-    if request.method=='POST':
-        user=request.user
-        data={}
+    if request.method == 'POST':
+        user = request.user
+        data = {}
         if user.id:
-            g_id=request.POST.get('g_id')
-            cart=Cart.objects.filter(user=user,goods_id=g_id).first()
+            g_id = request.POST.get('g_id')
+            cart = Cart.objects.filter(user=user, goods_id=g_id).first()
             if cart:
-                cart.c_num+=1
+                cart.c_num += 1
                 cart.save()
-                data['code']=200
+                data['code'] = 200
             else:
-                Cart.objects.create(user=user,goods_id=g_id)
+                Cart.objects.create(user=user, goods_id=g_id)
                 data['code'] = 200
             return JsonResponse(data)
+
+
+# 提交订单
+def submit_order(reuqest):
+    if reuqest.method == 'POST':
+        user = reuqest.user
+        carts = Cart.objects.filter(user=user, is_select=True)
+        o_num = get_order_num()
+        order = Order.objects.create(user=user, o_num=o_num)
+        for cart in carts:
+            OrderGoods.objects.create(order=order, goods=cart.goods, goods_num=cart.c_num)
+        carts.delete()
+        return JsonResponse({'code': 200})

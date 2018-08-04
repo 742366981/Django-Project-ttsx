@@ -20,3 +20,18 @@ function getPrice() {
         }
 getPrice();
 
+function submitOrder() {
+    var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+    $.ajax({
+        type:'POST',
+        url:'/contents/submitOrder/',
+        dataType:'json',
+        headers:{'X-CSRFToken':csrf},
+        success:function (data) {
+            if(data.code=='200'){
+                location.href='/contents/userCenterOrder/';
+            }
+        }
+    });
+}
+
