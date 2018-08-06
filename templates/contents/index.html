@@ -108,14 +108,14 @@
 		<div class="goods_con clearfix">
 			<div class="goods_banner fl"><img src="{% static gt.img %}"></div>
 			<ul class="goods_list fl">
-                {% for good in goods %}
-                {% ifequal good.gt.id gt.id %}
+                {% for good in gt.goods_set.all %}
+                {% if forloop.counter > 0 and forloop.counter < 5 %}
 				<li>
 					<h4><a href="#">{{good.name}}</a></h4>
 					<a href="{% url 'contents:detail' gt.gt_id good.g_id %}"><img src="{% static good.img %}"></a>
 					<div class="prize">¥ {{good.price}}</div>
 				</li>
-                {% endifequal %}
+                {% endif %}
                 {% endfor %}
 			</ul>
 		</div>

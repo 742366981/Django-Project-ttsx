@@ -15,10 +15,8 @@ def index(request):
         gts = GoodsType.objects.all()
         wheels = MainWheel.objects.all()
         advs = MainAdv.objects.all()
-        goods = Goods.objects.all()
         return render(request, 'contents/index.html', {'wheels': wheels,
                                                        'advs': advs,
-                                                       'goods': goods,
                                                        'gts': gts})
 
 
